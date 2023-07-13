@@ -1,7 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 import mysql.connector 
-obj=mysql.connector.connect(host="localhost",user="root",passwd="saiisking1")
+obj=mysql.connector.connect(host="localhost",user="root",passwd="saiisking1",database="AQI")
+a=obj.cursor()
 
 def get_aqi():
     url = 'https://aqicn.org/city/india/hyderabad/central-university/'
@@ -13,7 +14,14 @@ def get_aqi():
     if aqi_element:
         aqi = aqi_element.text.strip()
         level = get_aqi_level(int(aqi))
-        print(f"Current AQI in Hyderabad: {aqi} ({level})")
+        print(f"Current AQI in Hyderabad: {aqi} ({level})") 
+        query = "insert into aqi (aqi, level)  values  (%s, %s)"
+        values = (aqi, level)
+        a.execute(query, values)
+        obj.commit()
+        print("AQI data stored in AQI Database")
+       
+       
     else:
         print("Unable to retrieve AQI data.")
 
